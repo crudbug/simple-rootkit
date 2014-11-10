@@ -6,6 +6,7 @@
 
 #include <linux/sched.h> // current task_struct
 
+/* TODO: Write more comments! >.< */
 
 /* The normal sys_call_table is const so we define our own to stub it out. */
 unsigned long **sys_call_table;
