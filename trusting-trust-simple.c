@@ -1,9 +1,7 @@
 #include <linux/module.h> // needed for writing modules
 #include <linux/kernel.h> // kernel helper functions like printk
-
 #include <linux/syscalls.h> // The syscall table and __NR_<syscall_name> helpers
 #include <asm/paravirt.h> // read_cr0, write_cr0
-
 #include <linux/sched.h> // current task_struct
 
 /* The normal sys_call_table is const so we define our own to stub it out. */
