@@ -8,6 +8,12 @@
 * its memory location to get around that.
 */
 unsigned long **sys_call_table;
+
+/* The control register's value determines whether or not memory is
+* protected. We'll have to modify it and turn off memory protection
+* in order to write over the read system call; but we'll want to set 
+* it back to its original value (memory protection is generally good)!
+*/
 unsigned long original_cr0;
 
 /* The prototype for the write syscall. This is where we'll store the original
