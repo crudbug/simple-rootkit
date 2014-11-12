@@ -4,7 +4,9 @@
 #include <asm/paravirt.h> // read_cr0, write_cr0
 #include <linux/sched.h> // current task_struct
 
-/* The normal sys_call_table is const so we define our own to stub it out. */
+/* The normal sys_call_table is const but we can point our own variable
+* its memory location to get around it.
+*/
 unsigned long **sys_call_table;
 unsigned long original_cr0;
 
