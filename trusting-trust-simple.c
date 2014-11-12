@@ -53,16 +53,22 @@ static unsigned long **aquire_sys_call_table(void)
 	/* PAGE_OFFSET is a macro */
 	unsigned long int offset = PAGE_OFFSET;
 	unsigned long **sct;
-
+	/* Scan memory searching for the syscall table, which is contigious */
+	printk("Starting syscall table scan from: %lx\n", offset);
 	while (offset < ULLONG_MAX) {
+        /* cast our starting offset to match the system call table's type */
 		sct = (unsigned long **)offset;
 
-		if (sct[__NR_close] == (unsigned long *) sys_close)
+        /* We're scanning for a bit pattern that matches sct[__NR_close] 
+         * so we just increase 'offset' until we find it.
+         * */
+		if (sct[__NR_close] == (unsigned long *) sys_close) {
+			printk("Syscall table found at: %lx\n", offset);
 			return sct;
+		}
 
 		offset += sizeof(void *);
 	}
-
 	return NULL;
 }
 
