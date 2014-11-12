@@ -1,4 +1,4 @@
-trusting-trust-simple
+Simple Rootkit
 =====================
 
 <img src="trust.gif"></img>
