@@ -10,9 +10,10 @@
 unsigned long **sys_call_table;
 
 /* The control register's value determines whether or not memory is
-* protected. We'll have to modify it and turn off memory protection
-* in order to write over the read system call; but we'll want to set 
-* it back to its original value (memory protection is generally good)!
+* protected. We'll need to modify it, to turn off memory protection,
+* in order to write over the read system call. Here we store the initial
+* control register value so we can set it back when we're finished 
+* (memory protection is generally good)!
 */
 unsigned long original_cr0;
 
