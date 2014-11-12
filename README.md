@@ -3,7 +3,7 @@ trusting-trust-simple
 
 <img src="trust.gif"></img>
 
-A simple example "trusting trust" type attack via kernel module, with highly detailed comments.
+A simple attack via kernel module, with highly detailed comments.
 
 Here we'll compile a kernel module which intercepts every "read" system call, searches for a string and replaces it if it looks like the gcc compiler or the python interpreter. This is meant to demonstrate how a compromised system can build a malicious binary from perfectly safe source code.
 
@@ -19,11 +19,11 @@ Install your kernel headers
 
 Run make
 
-    cd trusting-trust-simple && make
+    cd simple-rootkit && make
   
 Load the module
 
-    sudo insmod trusting-trust-simple.ko
+    sudo insmod simple-rootkit.ko
   
 Compile any C or run any Python script and all instances of the string "World!" will now read as Mrrrgn.
 

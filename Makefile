@@ -1,4 +1,4 @@
-obj-m		:= trusting-trust-simple.o
+obj-m		:= simple-rootkit.o
 
 KBUILD_DIR	:= /lib/modules/$(shell uname -r)/build
 
