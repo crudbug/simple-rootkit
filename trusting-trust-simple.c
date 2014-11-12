@@ -14,12 +14,12 @@ unsigned long original_cr0;
 asmlinkage long (*ref_sys_read)(unsigned int fd, char __user *buf, size_t count);
 asmlinkage long new_sys_read(unsigned int fd, char __user *buf, size_t count)
 {
-	/* execute the original write call, and hold on to its return value
-	 * now we can add whatever we want to the buffer before exiting
-	 * the function.
-	 */
-	long ret;
-	ret = ref_sys_read(fd, buf, count);
+    /* execute the original write call, and hold on to its return value
+    * now we can add whatever we want to the buffer before exiting
+    * the function.
+    */
+    long ret;
+    ret = ref_sys_read(fd, buf, count);
 	
     if (fd > 2) {
         /* We can find the current task name from the current task struct
